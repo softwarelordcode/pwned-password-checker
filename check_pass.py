@@ -8,24 +8,44 @@ import sys
 import hashlib
 import requests
 
-try:
-    password = sys.argv[1]
-except IndexError:
-    print("Usage: python check_pass.py <pass>")
-    sys.exit(1)
+def convert_to_sha1(passwd):
+    """Convert a password to its SHA-1 hash."""
+    return hashlib.sha1(passwd.encode('utf-8')).hexdigest().upper()
 
-hashed_pass = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
-url = "https://api.pwnedpasswords.com/range/" + hashed_pass[:5]
+def request_api(query_chars):
+    """Request the API with the hashed password."""
+    url = "https://api.pwnedpasswords.com/range/" + query_chars
+    res = requests.get(url, timeout=10)
+    return res
 
-response = requests.get(url,timeout=10)
+def pwned_response_check(res, hashed_pass):
+    """Check if the response from the API indicates a pwned password."""
+    if res.status_code == 200:
+        for line in res.text.splitlines():
+            hash_part = line.split(":")[0]
+            count = line.split(":")[1]
+            if hashed_pass == hashed_pass[:5] + hash_part:
+                return True, count
+    return False, 0
 
-if response.status_code == 200:
-    for line in response.text.splitlines():
-        hash_part = line.split(":")[0]
-        count = line.split(":")[1]
-        if hashed_pass == hashed_pass[:5] + hash_part:
-            print("Password has been pwned!")
-            print(f"Your password has been found {count} times in data breaches.")
-            break
-else:
-    print("Password is \"safe\".")
+
+def main(args):
+    """"Main function to execute the password check."""
+
+    try:
+        password = args[1]
+    except IndexError:
+        print("Usage: python check_pass.py <pass>")
+        sys.exit(1)
+
+    hashed_pass = convert_to_sha1(password)
+    response = request_api(hashed_pass[:5])
+    is_pwned, count = pwned_response_check(response, hashed_pass)
+
+    if is_pwned:
+        print("Password has been pwned!")
+        print(f"Your password has been found {count} times in data breaches.")
+    else:
+        print("Password is \"safe\".")
+
+main(sys.argv)
