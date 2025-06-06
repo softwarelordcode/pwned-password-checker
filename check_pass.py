@@ -9,9 +9,9 @@ import requests
 
 password = "12345"
 hashed_pass = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
-url = "https://api.pwnedpasswords.com/range/" + hashed_pass[:5]  
+url = "https://api.pwnedpasswords.com/range/" + hashed_pass[:5]
 
-response = requests.get(url)
+response = requests.get(url,timeout=10)
 
 if response.status_code == 200:
     print("Password has been pwned!")
