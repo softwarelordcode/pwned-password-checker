@@ -29,4 +29,3 @@ if response.status_code == 200:
             break
 else:
     print("Password is \"safe\".")
-    print(response.text)
