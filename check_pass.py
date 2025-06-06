@@ -38,7 +38,7 @@ def main(args):
     try:
         password = args[1]
     except IndexError:
-        print("Usage: python check_pass.py <pass>")
+        print("Usage: python check_pass.py <password>")
         sys.exit(1)
 
     hashed_pass = convert_to_sha1(password)
