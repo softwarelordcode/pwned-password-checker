@@ -8,15 +8,18 @@ import sys
 import hashlib
 import requests
 
+
 def convert_to_sha1(passwd):
     """Convert a password to its SHA-1 hash."""
     return hashlib.sha1(passwd.encode('utf-8')).hexdigest().upper()
+
 
 def request_api(query_chars):
     """Request the API with the hashed password."""
     url = "https://api.pwnedpasswords.com/range/" + query_chars
     res = requests.get(url, timeout=10)
     return res
+
 
 def pwned_response_check(res, hashed_pass):
     """Check if the response from the API indicates a pwned password."""
